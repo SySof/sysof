@@ -34,6 +34,18 @@ struct city *city_list_prepend(struct city *city_list) {
     return new_city;
 }
 
+void strcpy_encode(unsigned char *dst, unsigned char *src) {
+    /* encode from ISO-8859-1 to UTF-8 */
+    while(*src) {
+        if(*src < 128) {
+            *dst++ = *src++;
+        } else {
+            *dst++ = 0xc2 + (*src > 0xbf);
+            *dst++ = (*src++ & 0x3f) + 0x80;
+        }
+    }
+}
+
 struct city *city_list_read(char *filename) {
     char buffer[buflen];
     struct city cur_city;
@@ -43,9 +55,9 @@ struct city *city_list_read(char *filename) {
     }
     cur_city.next = NULL;
     while(fgets(buffer, buflen, file)) {
-        if(sscanf(buffer, "%127[^:]:%lf:%lf", cur_city.name, &cur_city.latitude, &cur_city.longitude) == 3) {
+        if(sscanf(buffer, "%63[^:]:%lf:%lf", cur_city.name, &cur_city.latitude, &cur_city.longitude) == 3) {
             cur_city.next = city_list_prepend(cur_city.next);
-            strcpy(cur_city.next->name, cur_city.name);
+            strcpy_encode((unsigned char*)cur_city.next->name, (unsigned char*)cur_city.name);
             cur_city.next->latitude = cur_city.latitude;
             cur_city.next->longitude = cur_city.longitude;
         }
