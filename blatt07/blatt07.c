@@ -4,6 +4,7 @@
 #include <time.h>
 
 #define buflen 128
+#define BUCKET_COUNT 256
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -52,14 +53,12 @@ double dist_vincenty(struct city *city1, struct city *city2) {
     return dist_vincenty2(city1->latitude, city1->longitude, city2->latitude, city2->longitude);
 }
 
-unsigned long int get_hashval(const char *str) {
-    unsigned long int hashval;
-    const char *cp;
-    hashval = 0;
-    for (cp = str; *cp; ++cp) {
-        hashval = (hashval << 3ul) ^ *cp ^ (hashval >> 28ul);
+unsigned char get_hashval(const char *str) {
+    unsigned long int hashval = 0;
+    while(*str++) {
+        hashval = (hashval << 3ul) ^ *str ^ (hashval >> 28ul);
     }
-    return hashval;
+    return hashval%BUCKET_COUNT;
 }
 
 struct city *city_list_prepend(struct city *city_list) {
@@ -85,24 +84,26 @@ void strcpy_encode(unsigned char *dst, unsigned char *src) {
     }
 }
 
-struct city *city_list_read(char *filename) {
+unsigned int city_list_read(char *filename, struct city **buckets) {
     char buffer[buflen];
     struct city cur_city;
+    struct city *cur_city_bucket;
+    unsigned char hash;
     FILE* file = fopen(filename, "r");
     if(file == NULL) {
-        return NULL;
+        return 1;
     }
-    cur_city.next = NULL;
     while(fgets(buffer, buflen, file)) {
         if(sscanf(buffer, "%63[^:]:%lf:%lf", cur_city.name, &cur_city.latitude, &cur_city.longitude) == 3) {
-            cur_city.next = city_list_prepend(cur_city.next);
-            strcpy_encode((unsigned char*)cur_city.next->name, (unsigned char*)cur_city.name);
-            cur_city.next->latitude = cur_city.latitude;
-            cur_city.next->longitude = cur_city.longitude;
+            hash = get_hashval(cur_city.name);
+            cur_city_bucket = buckets[hash] = city_list_prepend(buckets[hash]);
+            strcpy_encode((unsigned char*)cur_city_bucket->name, (unsigned char*)cur_city.name);
+            cur_city_bucket->latitude = cur_city.latitude;
+            cur_city_bucket->longitude = cur_city.longitude;
         }
     }
     fclose(file);
-    return cur_city.next;
+    return 0;
 }
 
 void city_list_print(struct city *city_list) {
@@ -120,20 +121,27 @@ void city_list_free(struct city *city_list) {
 }
 
 int main() {
-    struct city *city_list, *city_list2;
+    struct city *city_buckets[BUCKET_COUNT];
+    struct city *city_list2;
+    unsigned int i, j;
 
     srand(time(NULL));
-    if(!(city_list = city_list_read("gemeinden.txt"))) {
+    memset(city_buckets, 0, BUCKET_COUNT * sizeof(struct city*));
+    if(city_list_read("gemeinden.txt", city_buckets)) {
         printf("Error reading file!\n");
         return 1;
     }
 
-    for(city_list2 = city_list; city_list2 && city_list2->next; city_list2 = city_list2->next) {
-        printf("Distance between %s and %s: %.1f km\n", city_list2->name, city_list2->next->name,
-            dist_vincenty(city_list2, city_list2->next));
+    for(i = 0; i < BUCKET_COUNT; i++) {
+        for(city_list2 = city_buckets[i], j = 0; city_list2; city_list2 = city_list2->next) {
+            j++;
+        }
+        printf("Bucket %d has %d elements.\n", i, j);
     }
 
-    city_list_free(city_list);
+    for(i = 0; i < BUCKET_COUNT; i++) {
+        city_list_free(city_buckets[i]);
+    }
     return 0;
 }
 
