@@ -120,10 +120,29 @@ void city_list_free(struct city *city_list) {
     }
 }
 
+struct city *read_city(struct city **buckets, FILE *file) {
+    char name[buflen];
+    struct city *cur_city;
+    while(1) {
+        printf("\nPlease enter a city name:\n");
+        if(!fgets(name, buflen, file)) {
+            printf("EOF while reading.\n");
+            exit(1);
+        }
+        name[strlen(name) - 1] = '\0'; /* delete newline */
+        for(cur_city = buckets[get_hashval(name)]; cur_city; cur_city = cur_city->next) {
+            if(strcmp(name, cur_city->name) == 0) {
+                return cur_city;
+            }
+        }
+        printf("City not found.\n");
+    }
+}
+
 int main() {
     struct city *city_buckets[BUCKET_COUNT];
-    struct city *city_list2;
-    unsigned int i, j;
+    struct city *city_list;
+    unsigned int i;
 
     srand(time(NULL));
     memset(city_buckets, 0, BUCKET_COUNT * sizeof(struct city*));
@@ -132,12 +151,8 @@ int main() {
         return 1;
     }
 
-    for(i = 0; i < BUCKET_COUNT; i++) {
-        for(city_list2 = city_buckets[i], j = 0; city_list2; city_list2 = city_list2->next) {
-            j++;
-        }
-        printf("Bucket %d has %d elements.\n", i, j);
-    }
+    city_list = read_city(city_buckets, stdin);
+    printf("Selected city: %s.\n", city_list->name);
 
     for(i = 0; i < BUCKET_COUNT; i++) {
         city_list_free(city_buckets[i]);
