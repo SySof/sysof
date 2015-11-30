@@ -144,6 +144,8 @@ int main() {
     struct city *start_city, *dest_city, *cur_city, *next_city;
     double cur_distance, max_distance;
     unsigned int i;
+    const char *rating[7] = {"Impossible!", "Fantastic!", "Great!",
+        "Very good!", "Good.", "Not bad.", "You can do better."};
 
     /* init */
     srand(time(NULL));
@@ -186,7 +188,7 @@ int main() {
     }
     /* game end */
     printf("Congratulations, you reached the destination!\n");
-    printf("Your maximum distance is %.1f km.\n", max_distance);
+    printf("Your maximum distance is %.1f km. %s\n", max_distance, rating[(int)log(max_distance)]);
 
     /* clear up */
     for(i = 0; i < BUCKET_COUNT; i++) {
