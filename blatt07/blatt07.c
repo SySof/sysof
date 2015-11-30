@@ -82,6 +82,7 @@ void strcpy_encode(unsigned char *dst, unsigned char *src) {
             *dst++ = (*src++ & 0x3f) + 0x80;
         }
     }
+    *dst = '\0';
 }
 
 unsigned int city_list_read(char *filename, struct city **buckets) {
@@ -95,9 +96,10 @@ unsigned int city_list_read(char *filename, struct city **buckets) {
     }
     while(fgets(buffer, buflen, file)) {
         if(sscanf(buffer, "%63[^:]:%lf:%lf", cur_city.name, &cur_city.latitude, &cur_city.longitude) == 3) {
-            hash = get_hashval(cur_city.name);
+            strcpy_encode((unsigned char*)buffer, (unsigned char*)cur_city.name);
+            hash = get_hashval(buffer);
             cur_city_bucket = buckets[hash] = city_list_prepend(buckets[hash]);
-            strcpy_encode((unsigned char*)cur_city_bucket->name, (unsigned char*)cur_city.name);
+            strcpy(cur_city_bucket->name, buffer);
             cur_city_bucket->latitude = cur_city.latitude;
             cur_city_bucket->longitude = cur_city.longitude;
         }
