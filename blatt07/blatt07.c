@@ -124,7 +124,7 @@ struct city *read_city(struct city **buckets, FILE *file) {
     char name[buflen];
     struct city *cur_city;
     while(1) {
-        printf("\nPlease enter a city name:\n");
+        printf("Please enter a city name:\n");
         if(!fgets(name, buflen, file)) {
             printf("EOF while reading.\n");
             exit(1);
@@ -141,19 +141,54 @@ struct city *read_city(struct city **buckets, FILE *file) {
 
 int main() {
     struct city *city_buckets[BUCKET_COUNT];
-    struct city *city_list;
+    struct city *start_city, *dest_city, *cur_city, *next_city;
+    double cur_distance, max_distance;
     unsigned int i;
 
+    /* init */
     srand(time(NULL));
     memset(city_buckets, 0, BUCKET_COUNT * sizeof(struct city*));
     if(city_list_read("gemeinden.txt", city_buckets)) {
         printf("Error reading file!\n");
         return 1;
     }
+    max_distance = 0;
 
-    city_list = read_city(city_buckets, stdin);
-    printf("Selected city: %s.\n", city_list->name);
+    /* game start */
+    printf("Welcome to the 'Long chain of short trips' game.\n");
+    printf("To begin, please enter a city where you would like to start.\n");
+    cur_city = start_city = read_city(city_buckets, stdin);
+    printf("Next enter a city as your destination.\n");
+    dest_city = read_city(city_buckets, stdin);
+    while(dest_city == cur_city) {
+        printf("You have to select a different city.\n");
+        dest_city = read_city(city_buckets, stdin);
+    }
+    printf("\nYour aim is to travel from %s to %s using steps as small as possible.\n",
+        start_city->name, dest_city->name);
 
+    /* game loop */
+    while(cur_city != dest_city) {
+        printf("You are now located in %s.\n", cur_city->name);
+        next_city = read_city(city_buckets, stdin);
+        if(next_city == cur_city) {
+            printf("You have to select a different city.\n");
+            continue;
+        }
+        cur_distance = dist_vincenty(cur_city, next_city);
+        if(cur_distance > max_distance) {
+            max_distance = cur_distance;
+            printf("New maximum distance is %.1f km.\n", max_distance);
+        } else {
+            printf("Distance is %.1f km, maximum distance is %.1f km.\n", cur_distance, max_distance);
+        }
+        cur_city = next_city;
+    }
+    /* game end */
+    printf("Congratulations, you reached the destination!\n");
+    printf("Your maximum distance is %.1f km.\n", max_distance);
+
+    /* clear up */
     for(i = 0; i < BUCKET_COUNT; i++) {
         city_list_free(city_buckets[i]);
     }
