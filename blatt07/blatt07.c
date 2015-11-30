@@ -23,57 +23,28 @@ double to_rad(double degree) {
 }
 
 double dist_vincenty2(double lat1, double lon1, double lat2, double lon2) {
-    double a, b, f, L, U1, U2, sinU1, cosU1, sinU2, cosU2, lambda, lambdaP;
-    double sinLambda, cosLambda, sinSigma, cosSigma, sigma, sinAlpha;
-    double cosSqAlpha, cos2SigmaM, C, uSq, A, B, deltaSigma, s;
-    unsigned int iterLimit;
+    static const double a = 6378137;
+    static const double f = 1 / 298.257223563;
 
-    a = 6378137;
-    b = 6356752.314245;
-    f = 1 / 298.257223563;
+    double lat1_rad = to_rad(lat1);
+    double lon1_rad = to_rad(lon1);
+    double lat2_rad = to_rad(lat2);
+    double lon2_rad = to_rad(lon2);
 
-    L = to_rad(lon2 - lon1);
-    U1 = atan((1 - f) * tan(to_rad(lat1)));
-    U2 = atan((1 - f) * tan(to_rad(lat2)));
-    sinU1 = sin(U1);
-    cosU1 = cos(U1);
-    sinU2 = sin(U2);
-    cosU2 = cos(U2);
+    double F = (lat1_rad + lat2_rad) / 2.0;
+    double G = (lat1_rad - lat2_rad) / 2.0;
+    double l = (lon1_rad - lon2_rad) / 2.0;
 
-    lambda = L;
-    iterLimit = 100;
-    do {
-        sinLambda = sin(lambda),
-        cosLambda = cos(lambda);
-        sinSigma = sqrt((cosU2 * sinLambda) * (cosU2 * sinLambda) +
-            (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda) * (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda));
-        if(sinSigma == 0) {
-            return 0; /* co-incident points */
-        }
-        cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
-        sigma = atan2(sinSigma, cosSigma);
-        sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
-        cosSqAlpha = 1 - sinAlpha * sinAlpha;
-        cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
-        if(cos2SigmaM != cos2SigmaM) { /* NaN */
-            cos2SigmaM = 0; /* equatorial line: cosSqAlpha=0 (§6) */
-        }
-        C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
-        lambdaP = lambda;
-        lambda = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
-    } while(abs(lambda - lambdaP) > 1e-12 && --iterLimit > 0);
+    double S = sin(G)*sin(G)*cos(l)*cos(l) + cos(F)*cos(F)*sin(l)*sin(l);
+    double C = cos(G)*cos(G)*cos(l)*cos(l) + sin(F)*sin(F)*sin(l)*sin(l);
+    double w = atan(sqrt(S/C));
+    double D = 2*w*a;
 
-    if(iterLimit == 0) {
-        return .0/.0; /* formula failed to converge */
-    }
-    uSq = cosSqAlpha * (a * a - b * b) / (b * b);
-    A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-    B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-    deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma *
-        (-1 + 2 * cos2SigmaM * cos2SigmaM) - B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) *
-        (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-    s = b * A * (sigma - deltaSigma);
+    double T = sqrt(S*C)/w;
+    double H1 = (3*T - 1)/(2*C);
+    double H2 = (3*T + 1)/(2*S);
 
+    double s = D*(1 + f*H1*sin(F)*sin(F)*cos(G)*cos(G) - f*H2*cos(F)*cos(F)*sin(G)*sin(G));
     return s/1000.0;
 }
 
