@@ -20,9 +20,9 @@ void blend_colors(unsigned char *a, unsigned char *b, unsigned char* c, double v
 
 void get_color(unsigned char* color, double value, int max_iter_count) {
     if(value == 1) {
-        color[0] = 0;
-        color[1] = 0;
-        color[2] = 0;
+        color[0] = colors[0][0];
+        color[1] = colors[0][1];
+        color[2] = colors[0][2];
     } else {
         value = -0.2*log(value / 200 * max_iter_count);
         // normalize value into [0, 1]:
