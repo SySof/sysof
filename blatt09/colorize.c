@@ -1,4 +1,5 @@
 #include "colorize.h"
+#include <math.h>
 
 /*void blend_colors(guchar *a, guchar *b, float a_percent) {
     b[0] = sqrt(a_percent*a[0]*a[0] + (1 - a_percent)*b[0]*b[0]);
@@ -7,6 +8,9 @@
 }*/
 
 void get_color(unsigned char* color, double value) {
+    value = 0.15*log(value);
+    value = fabs(value);
+    value -= (int) value;
     if(value == 0) {
         color[0] = 0;
         color[1] = 0;
