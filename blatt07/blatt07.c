@@ -150,7 +150,6 @@ int main() {
         "Very good!", "Good.", "Not bad.", "You can do better."};
 
     /* init */
-    srand(time(NULL));
     memset(city_buckets, 0, BUCKET_COUNT * sizeof(struct city*));
     if(city_list_read("gemeinden.txt", city_buckets)) {
         printf("Error reading file!\n");
