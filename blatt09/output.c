@@ -7,7 +7,8 @@
     b[2] = sqrt(a_percent*a[2]*a[2] + (1 - a_percent)*b[2]*b[2]);
 }*/
 
-void output_image (long double x, long double y, long double hwidth, int width, int height, int iter_count) {
+void output_image(long double x, long double y, long double hwidth,
+    int width, int height, int iter_count) {
     GdkPixbuf* image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, width, height);
     int n_channels = gdk_pixbuf_get_n_channels(image);
     int rowstride = gdk_pixbuf_get_rowstride(image);
@@ -15,7 +16,10 @@ void output_image (long double x, long double y, long double hwidth, int width, 
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             guchar* pp = pixels + i * rowstride + j * n_channels;
-            long double _Complex c = (long double) j / (long double) width * hwidth - x + ((long double) i / (long double) height * hwidth * height / width - y ) * I;
+            long double cur_x = (long double) j / (long double) width * hwidth - x;
+            long double cur_y = ((long double) i / (long double) height * hwidth
+                * height / width - y );
+            long double _Complex c = cur_x + cur_y * I;
             int max_iter_count = cabsl(c) >= 2 ? 1 : get_iter_count(c, iter_count);
             if(!max_iter_count) {
                 pp[0] = 0;
@@ -32,7 +36,8 @@ void output_image (long double x, long double y, long double hwidth, int width, 
                         if((k == 0 && l ==0) || sqrt(k*k + l*l) > 3) {
                             continue;
                         }
-                        blend_colors(pp, pixels + (i + k) * rowstride + (j + l) * n_channels, (4 - fabs(sqrt(k*k + l*l))) / 4.0);
+                        blend_colors(pp, pixels + (i + k) * rowstride + (j + l)
+                            * n_channels, (4 - fabs(sqrt(k*k + l*l))) / 4.0);
                     }
                 }
             }*/

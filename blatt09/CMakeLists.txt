@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 project(fractals)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Og -Wall -Wextra")
 find_package(PkgConfig REQUIRED)
 find_library(M_LIB m)
 pkg_check_modules(PIXBUF REQUIRED gdk-pixbuf-2.0)

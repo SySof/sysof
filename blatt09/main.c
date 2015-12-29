@@ -4,7 +4,8 @@
 
 #include "output.h"
 
-char* usage =  "Usage: [-x Re(c)] [-y Im(c)] [-d Re(cmax -cmin)] [-w width] [-h height] [-i maximal iteration count]\n";
+char* usage =  "Usage: [-x Re(c)] [-y Im(c)] [-d Re(cmax -cmin)] [-w width] " \
+"[-h height] [-i maximal iteration count]\n";
 
 int main(int argc, char** argv){
     int c;
