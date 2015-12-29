@@ -1,14 +1,14 @@
 #include "iterator.h"
 
-int get_iter_count(long double _Complex c , int max_iter_count) {
+double get_iter_value(long double _Complex c, int max_iter_count) {
     long double _Complex z = 0;
-    for(int i = 0; i < max_iter_count; i++) {
+    int i = 0;
+    while(cabsl(z) < 2 && i < max_iter_count) {
         z = (cabsl(creall(z)) - cabsl(cimagl(z)) * I)
             * (cabsl(creall(z)) - cabsl(cimagl(z)) * I)
             - c;
-        if(cabsl(z)> 2) {
-            return i;
-        }
+        i++;
     }
-    return 0;
+    double iter_value = ((double) i) / max_iter_count;
+    return iter_value;
 }
