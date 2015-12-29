@@ -8,16 +8,14 @@
 }*/
 
 void get_color(unsigned char* color, double value) {
-    value = 0.2*log(value);
-    //~ value = value > 1 ? 1 : value;
-    //~ value = value < 0 ? 0 : value;
-    value = fabs(value);
-    value -= (int) value;
-    if(value == 0) {
+    if(value == 1) {
         color[0] = 0;
         color[1] = 0;
         color[2] = 0;
     } else {
+        value = 0.2*log(value);
+        value = fabs(value);
+        value -= (int) value;
         color[0] = value * 255;
         color[1] = 0;
         color[2] = 255 - value * 255;
