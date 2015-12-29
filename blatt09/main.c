@@ -9,8 +9,8 @@ char* usage =  "Usage: [-x Re(c)] [-y Im(c)] [-d Re(cmax -cmin)] [-w width] " \
 
 int main(int argc, char** argv){
     int c;
-    long double x = 2.5;
-    long double y = 2.5;
+    long double x = 2.1;
+    long double y = 2.3;
     long double d = 5;
     int w = 800;
     int h = 600;

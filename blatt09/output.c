@@ -16,7 +16,7 @@ void output_image(long double x, long double y, long double hwidth,
                 * height / width - y );
             long double _Complex c = cur_x + cur_y * I;
             double iter_value = get_iter_value(c, max_iter_count);
-            get_color(pp, iter_value);
+            get_color(pp, iter_value, max_iter_count);
         }
     }
     gdk_pixbuf_save(image, "fractal.png", "png", NULL, NULL, NULL);
