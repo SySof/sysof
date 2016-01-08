@@ -8,6 +8,7 @@ void output_image(long double x, long double y, long double hwidth,
     int n_channels = gdk_pixbuf_get_n_channels(image);
     int rowstride = gdk_pixbuf_get_rowstride(image);
     guchar * pixels = gdk_pixbuf_get_pixels(image);
+    #pragma openmp parallel for
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             guchar* pp = pixels + i * rowstride + j * n_channels;
