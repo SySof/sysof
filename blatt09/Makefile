@@ -10,3 +10,4 @@ main: main.c
 
 clean:
 	rm -rf ./fractal
+	rm -f *.o
