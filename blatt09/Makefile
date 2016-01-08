@@ -5,7 +5,8 @@ main: main.c
 	gcc $(CFLAGS) main.c $(LIB)
 	gcc $(CFLAGS) output.c $(LIB)
 	gcc $(CFLAGS) iterator.c $(LIB)
-	gcc -o fractal main.o output.o iterator.o $(LIB) -lm
+	gcc $(CFLAGS) colorize.c $(LIB)
+	gcc -o fractal colorize.o main.o output.o iterator.o $(LIB) -lm
 
 clean:
-	rm -rf ./fractal	
+	rm -rf ./fractal
