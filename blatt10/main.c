@@ -10,7 +10,7 @@
 char* usage =  "Usage: [-c max number of files] [-d show date of last change]" \
 "[-o list oldest files] [-C select other direction]\n";
 
-void traverse(DIR*);
+void traverse(DIR*, heap*);
 
 int main(int argc, char* argv[]) {
 	int c = 0, amount = 10, show_date = 0, oldest = 0;
@@ -56,7 +56,13 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	traverse(dir);
+	heap* heap_storage = init_heap(20000, oldest);
+	
+	traverse(dir, heap_storage);
+	
+	info** out =  get_sorted_elements(heap_storage);
+	
+	
 	
 	closedir(dir);
 }

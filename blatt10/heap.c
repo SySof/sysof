@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "heap.h"
 
 heap* init_heap(int order, int initial_size) {
@@ -18,6 +19,7 @@ heap* init_heap(int order, int initial_size) {
 
 int add(heap* storage , info* element) {
     if(++(storage->elem_count) == storage->len) {
+        printf("Here");
         storage->len *= 2;
         info** new_storage = realloc(storage->storage, storage->len);
         if(new_storage == NULL) {
