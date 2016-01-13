@@ -59,7 +59,7 @@ void heapify(heap* storage, int i) {
     storage->storage[1] = storage->storage[i];
     storage->storage[i] = first;
 
-    for(int pos = 1; pos < i; pos *= 2) {
+    for(int pos = 2; pos < i; pos *= 2) {
         if(storage->order == ORDER_ASCENDING) {
             if(storage->storage[pos*2]->metadata.st_mtime < storage->storage[pos]->metadata.st_mtime) {
                 info* swap = storage->storage[pos*2];
@@ -82,6 +82,7 @@ void heapify(heap* storage, int i) {
 }
 
 info** get_sorted_elements(heap* storage) {
+
     heapify(storage, storage->elem_count);
     return storage->storage;
 }
