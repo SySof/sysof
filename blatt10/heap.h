@@ -11,19 +11,15 @@ typedef struct info {
     char* name;
 } info;
 
-typedef struct heap {
-    int order;
-    int elem_count;
-    int len;
-    info** storage;
-} heap;
+struct heap;
+typedef struct heap heap;
 
-heap* init_heap(int order, int initial_size);
+heap* init_heap(int order, int size);
 
 int add(heap* storage, info* element);
 
 info** get_sorted_elements(heap* storage);
 
-void printout(heap* heap_storage);
+void printout(heap* heap_storage, int show_date);
 
 #endif

@@ -1,4 +1,4 @@
-CFLAGS := -std=gnu11 -Wall -c
+CFLAGS := -std=gnu11 -Wall -c -g
 LDFLAGS :=
 SOURCES=main.c heap.c traverse.c
 OBJECTS=$(SOURCES:.c=.o)

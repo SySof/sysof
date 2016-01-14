@@ -4,33 +4,52 @@
 #include "heap.h"
 #include <time.h>
 
-void printout(heap* heap_storage) {
-    info** out =  heap_storage->storage;
+struct heap {
+    int order;
+    int elem_count;
+    int len, max_len;
+    info** storage;
+};
+
+void heapify(heap* storage, int i);
+
+void printout_single(info* out, int show_date) {
     struct tm  ts;
     char       buf[80];
 
-    for(int i = 1; i<=heap_storage->elem_count; i++) {
-        //printf("Name: %s", out[i]->name);
-        ts = *localtime(&out[i]->metadata.st_mtime);
+    printf("Name: %s", out->name);
+    if(show_date == 1) {
+        ts = *localtime(&out->metadata.st_mtime);
         strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
-        printf("Date: %s", buf);
-        printf("\n");
+        printf("; Date: %s", buf);
     }
     printf("\n");
 }
 
-heap* init_heap(int order, int initial_size) {
+void printout(heap* heap_storage, int show_date) {
+    heapify(heap_storage, heap_storage->elem_count);
+    for(int i = 1; i<=heap_storage->elem_count; i++) {
+        printout_single(heap_storage->storage[i], show_date);
+    }
+}
+
+heap* init_heap(int order, int size) {
     heap* new_heap = (heap*) malloc(sizeof(heap));
     if(new_heap == NULL) {
         return NULL;
     }
-    new_heap->storage = (info**) malloc(initial_size * sizeof(info*));
+    if(size <= 0) {
+        size = 1000000;
+    }
+    new_heap->max_len = size;
+    size = size > 8 ? 8 : size;
+    new_heap->storage = (info**) malloc(size * sizeof(info*));
     if(new_heap->storage == NULL) {
         return NULL;
     }
     new_heap->order = order;
     new_heap->elem_count = 0;
-    new_heap->len = initial_size;
+    new_heap->len = size;
     return new_heap;
 }
 
@@ -64,17 +83,43 @@ void check_heap(heap* storage, int i, int len) {
 
 int add(heap* storage, info* element) {
 
-    if(++(storage->elem_count) >= storage->len) {
-        storage->len *= 2;
-        info** new_storage = realloc(storage->storage, storage->len * sizeof(info*));
-        if(new_storage == NULL) {
-            free(storage->storage);
-            return 0;
-        }
-        storage->storage = new_storage;
-    }
+    int pos;
 
-    int pos = storage->elem_count;
+    if((storage->elem_count + 1) > storage->max_len)
+    {
+        check_heap(storage, 1, storage->elem_count);
+        int last_pos = 0; // index to smallest (or biggest) element
+        time_t last_time = element->metadata.st_mtime;
+        for(int i = 1; i <= storage->elem_count; i++) {
+            if(storage->order == ORDER_ASCENDING) {
+                if(storage->storage[i]->metadata.st_mtime <= last_time) {
+                    last_pos = i;
+                    last_time = storage->storage[i]->metadata.st_mtime;
+                }
+            } else {
+                if(storage->storage[i]->metadata.st_mtime >= last_time) {
+                    last_pos = i;
+                    last_time = storage->storage[i]->metadata.st_mtime;
+                }
+            }
+        }
+        if(last_pos == 0) {
+            return 1;
+        }
+        pos = last_pos;
+    } else {
+        if(++(storage->elem_count) >= storage->len) {
+            storage->len = (2*storage->len > storage->max_len)
+                ? storage->max_len : 2*storage->len;
+            info** new_storage = realloc(storage->storage, storage->len * sizeof(info*));
+            if(new_storage == NULL) {
+                free(storage->storage);
+                return 0;
+            }
+            storage->storage = new_storage;
+        }
+        pos = storage->elem_count;
+    }
 
     for(; pos > 1; pos /= 2) {
         if(storage->order == ORDER_ASCENDING) {

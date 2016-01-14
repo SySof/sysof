@@ -15,9 +15,6 @@ int main(int argc, char* argv[]) {
     int c = 0, amount = 100, show_date = 0, oldest = 0;
     char* dirname = ".";
 
-    struct tm  ts;
-    char       buf[80];
-
     while((c = getopt(argc, argv, "c:doC:")) != -1) {
         switch(c) {
             case 'c':
@@ -57,22 +54,11 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    heap* heap_storage = init_heap(oldest, 2000);
+    heap* heap_storage = init_heap(oldest, amount);
 
     traverse(dir, heap_storage, "./");
 
-    printf("Sorted files:\n");
-    info** out =  get_sorted_elements(heap_storage);
-    for(int i = 1; i<heap_storage->elem_count; i++) {
-        if(i > amount) break;
-        printf("Name: %s", out[i]->name);
-        if(show_date == 1) {
-            ts = *localtime(&out[i]->metadata.st_mtime);
-            strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
-            printf("; Date: %s", buf);
-        }
-        printf("\n");
-    }
+    printout(heap_storage, show_date);
 
 
     closedir(dir);
