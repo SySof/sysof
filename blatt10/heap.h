@@ -24,4 +24,6 @@ int add(heap* storage , info* element);
 
 info** get_sorted_elements(heap* storage);
 
+void printout(heap* heap_storage);
+
 #endif

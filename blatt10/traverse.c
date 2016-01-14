@@ -8,7 +8,7 @@
 #include "heap.h"
 
 
-void traverse(DIR* dir, heap* heap_storage){
+void traverse(DIR* dir, heap* heap_storage, char* dirname){
     static int count = 0;
 	struct dirent* entry;
 	while ((entry = readdir(dir))) {
@@ -18,9 +18,13 @@ void traverse(DIR* dir, heap* heap_storage){
 		}
 		if (S_ISREG(statbuf.st_mode)) {
 			info* element = malloc(sizeof(info));
+            char* name = malloc(strlen(entry->d_name) + strlen(dirname) + 1);
+            strcpy(name, dirname);
+            strcpy(name + strlen(dirname), entry->d_name);
 			element->metadata = statbuf;
-			element->name = entry->d_name;
+			element->name = name;
 			add(heap_storage , element);
+            printout(heap_storage);
 
 		} else if (S_ISDIR(statbuf.st_mode)) {
             count++;
@@ -33,7 +37,12 @@ void traverse(DIR* dir, heap* heap_storage){
                 }
                 DIR* tmp;
                 tmp = opendir(".");
-                traverse(tmp, heap_storage);
+                char new_dirname[strlen(dirname) + strlen(entry->d_name) + 2];
+                strcpy(new_dirname, dirname);
+                strcpy(new_dirname + strlen(dirname), entry->d_name);
+                new_dirname[strlen(dirname) + strlen(entry->d_name)] = '/';
+                new_dirname[strlen(dirname) + strlen(entry->d_name) + 1] = '\0';
+                traverse(tmp, heap_storage, new_dirname);
                 chdir("..");
             }
 		}
