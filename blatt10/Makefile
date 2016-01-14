@@ -1,10 +1,25 @@
-CFLAGS :=	-std=gnu11 -Wall -c
+CFLAGS := -std=gnu11 -Wall -c
+LDFLAGS :=
+SOURCES=main.c heap.c traverse.c
+OBJECTS=$(SOURCES:.c=.o)
+EXECUTABLE=blatt10
 
-main: main.c heap.c traverse.c heap.h
-	gcc $(CFLAGS) heap.c  
-	gcc $(CFLAGS) traverse.c 
-	gcc $(CFLAGS) main.c
-	gcc -o blatt10 heap.o main.o traverse.o 
+all: $(EXECUTABLE)
+
+run: all
+	./$(EXECUTABLE)
+
+main.o: main.c heap.h traverse.h
+	gcc $(CFLAGS) $< -o $@
+
+heap.o: heap.c heap.h
+	gcc $(CFLAGS) $< -o $@
+
+traverse.o: traverse.c heap.h
+	gcc $(CFLAGS) $< -o $@
+
+blatt10: $(OBJECTS)
+	gcc $(LDFLAGS) -o $@ $(OBJECTS)
+
 clean:
-	rm -rf ./blatt10
-	rm -f *.o	
+	rm -rf $(EXECUTABLE) $(OBJECTS)
