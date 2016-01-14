@@ -24,7 +24,6 @@ void traverse(DIR* dir, heap* heap_storage, char* dirname) {
             element->metadata = statbuf;
             element->name = name;
             add(heap_storage, element);
-            printout(heap_storage);
 
         } else if (S_ISDIR(statbuf.st_mode)) {
             count++;

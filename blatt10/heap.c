@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "heap.h"
@@ -33,6 +34,34 @@ heap* init_heap(int order, int initial_size) {
     return new_heap;
 }
 
+void check_heap(heap* storage, int i, int len) {
+    if(i < 1) {
+        return;
+    }
+    if(2*i <= len) {
+        if(storage->order == ORDER_ASCENDING) {
+            assert(storage->storage[2*i]->metadata.st_mtime
+                <= storage->storage[i]->metadata.st_mtime);
+            check_heap(storage, 2*i, len);
+        } else {
+            assert(storage->storage[2*i]->metadata.st_mtime
+                >= storage->storage[i]->metadata.st_mtime);
+            check_heap(storage, 2*i, len);
+        }
+    }
+    if((2*i + 1) <= len) {
+        if(storage->order == ORDER_ASCENDING) {
+            assert(storage->storage[2*i + 1]->metadata.st_mtime
+                <= storage->storage[i]->metadata.st_mtime);
+            check_heap(storage, 2*i + 1, len);
+        } else {
+            assert(storage->storage[2*i + 1]->metadata.st_mtime
+                >= storage->storage[i]->metadata.st_mtime);
+            check_heap(storage, 2*i + 1, len);
+        }
+    }
+}
+
 int add(heap* storage, info* element) {
 
     if(++(storage->elem_count) >= storage->len) {
@@ -65,10 +94,13 @@ int add(heap* storage, info* element) {
 
     storage->storage[pos] = element;
 
+    check_heap(storage, 1, storage->elem_count);
+
     return 1;
 }
 
 void heapify(heap* storage, int i) {
+    check_heap(storage, 1, i);
     if(i <= 1) {
         return;
     }
@@ -76,27 +108,50 @@ void heapify(heap* storage, int i) {
     storage->storage[1] = storage->storage[i];
     storage->storage[i] = first;
 
-    for(int pos = 1; pos < i; pos *= 2) {
-        if(pos*2 > storage->elem_count) {
-            break;
-        }
+    for(int pos = 1; 2*pos < i;) {
+        int new_pos = pos*2;
         if(storage->order == ORDER_ASCENDING) {
-            if(storage->storage[pos*2]->metadata.st_mtime > storage->storage[pos]->metadata.st_mtime) {
-                info* swap = storage->storage[pos*2];
-                storage->storage[pos*2] = storage->storage[pos];
+            // if parent node is smaller than one of its child nodes,
+            // then swap parent node with the bigger one of the child nodes
+            if(storage->storage[new_pos]->metadata.st_mtime
+                > storage->storage[pos]->metadata.st_mtime
+                || ((new_pos + 1) < i
+                && storage->storage[new_pos + 1]->metadata.st_mtime
+                > storage->storage[pos]->metadata.st_mtime)) {
+
+                if((new_pos + 1) < i
+                    && storage->storage[new_pos + 1]->metadata.st_mtime
+                    > storage->storage[new_pos]->metadata.st_mtime) {
+                    new_pos++;
+                }
+                info* swap = storage->storage[new_pos];
+                storage->storage[new_pos] = storage->storage[pos];
                 storage->storage[pos] = swap;
             } else {
                 break;
             }
         } else {
-            if(storage->storage[pos*2]->metadata.st_mtime < storage->storage[pos]->metadata.st_mtime) {
-                info* swap = storage->storage[pos*2];
-                storage->storage[pos*2] = storage->storage[pos];
+            // if parent node is bigger than one of its child nodes,
+            // then swap parent node with the smaller one of the child nodes
+            if(storage->storage[new_pos]->metadata.st_mtime
+                < storage->storage[pos]->metadata.st_mtime
+                || ((new_pos + 1) < i
+                && storage->storage[new_pos + 1]->metadata.st_mtime
+                < storage->storage[pos]->metadata.st_mtime)) {
+
+                if((new_pos + 1) < i
+                    && storage->storage[new_pos + 1]->metadata.st_mtime
+                    < storage->storage[new_pos]->metadata.st_mtime) {
+                    new_pos++;
+                }
+                info* swap = storage->storage[new_pos];
+                storage->storage[new_pos] = storage->storage[pos];
                 storage->storage[pos] = swap;
             } else {
                 break;
             }
         }
+        pos = new_pos;
     }
     heapify(storage, i - 1);
 }

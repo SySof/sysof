@@ -61,9 +61,8 @@ int main(int argc, char* argv[]) {
 
     traverse(dir, heap_storage, "./");
 
-    info** out =  get_sorted_elements(heap_storage);
-
     printf("Sorted files:\n");
+    info** out =  get_sorted_elements(heap_storage);
     for(int i = 1; i<heap_storage->elem_count; i++) {
         if(i > amount) break;
         printf("Name: %s", out[i]->name);
