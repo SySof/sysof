@@ -28,7 +28,6 @@ int main(int argc, char* argv[]) {
 				oldest = 1;
                 break;
 			case 'C':
-				printf("I've been here!");
                 dirname = optarg;
                 break;
             case ':':

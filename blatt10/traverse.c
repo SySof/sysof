@@ -17,8 +17,6 @@ void traverse(DIR* dir, heap* heap_storage){
 			perror(entry->d_name); exit(1);
 		}
 		if (S_ISREG(statbuf.st_mode)) {
-			//printf("REG");
-			//TODO: Insert heap
 			info* element = malloc(sizeof(info));
 			element->metadata = statbuf;
 			element->name = entry->d_name;
