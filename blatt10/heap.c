@@ -3,12 +3,12 @@
 #include "heap.h"
 #include <time.h>
 
-void printout(heap* heap_storage){
+void printout(heap* heap_storage) {
     info** out =  heap_storage->storage;
     struct tm  ts;
     char       buf[80];
 
-    for(int i = 1; i<=heap_storage->elem_count; i++){
+    for(int i = 1; i<=heap_storage->elem_count; i++) {
         //printf("Name: %s", out[i]->name);
         ts = *localtime(&out[i]->metadata.st_mtime);
         strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
@@ -19,7 +19,7 @@ void printout(heap* heap_storage){
 }
 
 heap* init_heap(int order, int initial_size) {
-    heap*  new_heap = (heap*) malloc(sizeof(heap));
+    heap* new_heap = (heap*) malloc(sizeof(heap));
     if(new_heap == NULL) {
         return NULL;
     }
@@ -30,10 +30,10 @@ heap* init_heap(int order, int initial_size) {
     new_heap->order = order;
     new_heap->elem_count = 0;
     new_heap->len = initial_size;
-    return  new_heap;
+    return new_heap;
 }
 
-int add(heap* storage , info* element) {
+int add(heap* storage, info* element) {
 
     if(++(storage->elem_count) >= storage->len) {
         storage->len *= 2;
