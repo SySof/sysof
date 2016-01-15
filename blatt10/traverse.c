@@ -5,10 +5,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "heap.h"
+#include "traverse.h"
 
 
-void traverse(DIR* dir, heap* heap_storage, char* dirname) {
+void traverse(DIR* dir, char* dirname, TraverseHandler handler, void* handle) {
     static int count = 0;
     struct dirent* entry;
     while ((entry = readdir(dir))) {
@@ -17,14 +17,10 @@ void traverse(DIR* dir, heap* heap_storage, char* dirname) {
             perror(entry->d_name); exit(1);
         }
         if (S_ISREG(statbuf.st_mode)) {
-            info* element = malloc(sizeof(info));
             char* name = malloc(strlen(entry->d_name) + strlen(dirname) + 1);
             strcpy(name, dirname);
             strcpy(name + strlen(dirname), entry->d_name);
-            element->metadata = statbuf;
-            element->name = name;
-            add(heap_storage, element);
-
+            handler(handle, name, statbuf);
         } else if (S_ISDIR(statbuf.st_mode)) {
             count++;
             if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) {
@@ -41,7 +37,7 @@ void traverse(DIR* dir, heap* heap_storage, char* dirname) {
                 strcpy(new_dirname + strlen(dirname), entry->d_name);
                 new_dirname[strlen(dirname) + strlen(entry->d_name)] = '/';
                 new_dirname[strlen(dirname) + strlen(entry->d_name) + 1] = '\0';
-                traverse(tmp, heap_storage, new_dirname);
+                traverse(tmp, new_dirname, handler, handle);
                 chdir("..");
             }
         }

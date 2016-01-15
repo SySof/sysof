@@ -15,7 +15,7 @@ main.o: main.c heap.h traverse.h
 heap.o: heap.c heap.h
 	gcc $(CFLAGS) $< -o $@
 
-traverse.o: traverse.c heap.h
+traverse.o: traverse.c traverse.h
 	gcc $(CFLAGS) $< -o $@
 
 blatt10: $(OBJECTS)

@@ -11,6 +11,14 @@
 char* usage =  "Usage: [-c max number of files] [-d show date of last change]" \
 "[-o list oldest files] [-C select other direction]\n";
 
+void traverseHandler(void* handle, char* path, struct stat statbuf) {
+    heap* heap_storage = (heap*) handle;
+    info* element = malloc(sizeof(info));
+    element->metadata = statbuf;
+    element->name = path;
+    add(heap_storage, element);
+}
+
 int main(int argc, char* argv[]) {
     int c = 0, amount = 100, show_date = 0, oldest = 0;
     char* dirname = ".";
@@ -56,7 +64,7 @@ int main(int argc, char* argv[]) {
 
     heap* heap_storage = init_heap(oldest, amount);
 
-    traverse(dir, heap_storage, "./");
+    traverse(dir, "./", traverseHandler, heap_storage);
 
     printout(heap_storage, show_date);
 

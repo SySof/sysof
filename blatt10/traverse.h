@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 
-void traverse(DIR* dir, heap* heap_storage, char* dirname);
+typedef void (*TraverseHandler)(void* handle, char* path, struct stat statbuf);
+void traverse(DIR* dir, char* dirname, TraverseHandler handler, void* handle);
 
 #endif
