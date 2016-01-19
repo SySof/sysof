@@ -1,5 +1,5 @@
 CFLAGS:=-Wall -Wextra -Werror=all -g
-LDFLAGS:=/usr/lib/libowfat.a
+LDFLAGS:=-lowfat
 SOURCES:=main.c hash.c
 OBJECTS:=$(SOURCES:.c=.o)
 EXECUTABLE:=blatt11
@@ -10,7 +10,7 @@ run: all
 	./$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	gcc $(LDFLAGS) -o $@ $(OBJECTS)
+	gcc $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -rf $(EXECUTABLE) $(OBJECTS)
