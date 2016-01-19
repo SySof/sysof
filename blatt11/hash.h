@@ -3,12 +3,13 @@
 
 #include <stralloc.h>
 
-#define HASHLEN 256
+struct hash_elem;
+typedef struct hash_elem** hash;
 
-char* init_hash();
+hash hash_init();
 
-int add_string(stralloc sa);
+int hash_add_string(hash h, stralloc sa);
 
-int contains_string(stralloc sa);
+int hash_contains_string(hash h, stralloc sa);
 
 #endif //HASH_H

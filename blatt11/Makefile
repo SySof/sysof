@@ -1,8 +1,8 @@
-CFLAGS := -std=gnu11 -Wall -c -g
-LDFLAGS := -lowfat
-SOURCES := main.c hash.c
-OBJECTS := $(SOURCES:.c=.o)
-EXECUTABLE := blatt11
+CFLAGS:=-Wall -Wextra -Werror=all -g
+LDFLAGS:=/usr/lib/libowfat.a
+SOURCES:=main.c hash.c
+OBJECTS:=$(SOURCES:.c=.o)
+EXECUTABLE:=blatt11
 
 all: $(EXECUTABLE)
 
