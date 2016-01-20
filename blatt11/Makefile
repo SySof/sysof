@@ -1,6 +1,6 @@
-CFLAGS:=-Wall -Wextra -Werror=all -g
-LDFLAGS:=-lowfat
-SOURCES:=main.c hash.c
+CFLAGS:=-Wall -Wextra -g -fsanitize=address
+LDFLAGS:=-lasan -lowfat
+SOURCES:=main.c hash.c scan.c
 OBJECTS:=$(SOURCES:.c=.o)
 EXECUTABLE:=blatt11
 
