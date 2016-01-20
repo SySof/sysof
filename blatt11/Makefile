@@ -1,5 +1,5 @@
-CFLAGS:=-Wall -Wextra -g -fsanitize=address
-LDFLAGS:=-lasan -lowfat
+CFLAGS:=-Wall -Wextra -g
+LDFLAGS:=-lowfat
 SOURCES:=main.c hash.c scan.c
 OBJECTS:=$(SOURCES:.c=.o)
 EXECUTABLE:=blatt11
@@ -10,7 +10,7 @@ run: all
 	./$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	gcc $(LDFLAGS) -o $@ $(OBJECTS)
+	gcc -o $@ $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -rf $(EXECUTABLE) $(OBJECTS)

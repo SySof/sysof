@@ -1,37 +1,29 @@
+#include <ctype.h>
 #include <stdlib.h>
-#include <string.h>
 #include "scan.h"
 
-int stralloc_ready_(stralloc *sa,size_t len) {
-  register size_t wanted=len+(len>>3)+30; /* heuristic from djb */
-  if (!sa->s || sa->a<len) {
-    register char* tmp;
-    if (!(tmp=realloc(sa->s,wanted)))
-      return 0;
-    sa->a=wanted;
-    sa->s=tmp;
-  }
-  return 1;
-}
+#define MIN_ALLOC 5
 
-int scan_word(FILE* file, stralloc* word) {
+int scan_word(FILE* file, stralloc* word, int ignore_case) {
     int c;
     word->a = 0;
     word->len = 0;
     word->s = NULL;
     while((c = fgetc(file)) != EOF) {
-        if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-            word->len = word->len > 0 ? word->len+1 : 2;
-            if(stralloc_ready_(word, word->len) != 1) {
+        if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '\'' || c == 133 || c > 160) {
+            if(stralloc_readyplus(word, MIN_ALLOC) != 1) {
                 fprintf(stderr, "stralloc error.\n");
                 exit(1);
             }
-            word->s[word->len-2] = (unsigned char) c;
-            word->s[word->len-1] = '\0';
+            if(ignore_case && c >= 'A' && c <= 'Z') {
+                c = tolower(c);
+            }
+            stralloc_append(word, (char*)&c);
         } else {
             if(word->len == 0) {
                 continue; // skip characters at beginning of word
             } else {
+
                 return 0; // return if end of word detected
             }
         }

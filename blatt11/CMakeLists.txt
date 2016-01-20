@@ -9,6 +9,8 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/res)
 set(SOURCE_FILES
     hash.c
     hash.h
+	scan.c
+	scan.h
     main.c
 	)
 

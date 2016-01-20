@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "hash.h"
 
 #define HASHLEN 256
 
-int get_hash(stralloc sa);
+unsigned int get_hash(stralloc sa);
 
 typedef struct hash_elem {
     stralloc sa;
@@ -25,15 +26,18 @@ int hash_add_string(hash h, stralloc sa) {
         } else {
             nh->sa = sa;
             nh->next = NULL;
-            elem = nh;
+            h[get_hash(sa)] = nh;
             return 1;
         }
     }
-    while(elem != NULL) {
-        if(!strcmp(elem->sa.s, sa.s)) {
+    while(elem->next != NULL) {
+        if(stralloc_equal(&(elem->sa), &sa)) {
             return 1;
         }
         elem = elem->next;
+    }
+    if(stralloc_equal(&(elem->sa), &sa)) {
+        return 1;
     }
     hash_elem* nh = (hash_elem*) malloc(sizeof(hash_elem));
     if(nh == NULL) {
@@ -52,7 +56,7 @@ int hash_contains_string(hash h, stralloc sa) {
         return 0;
     }
     while(elem != NULL) {
-        if(!strcmp(elem->sa.s, sa.s)) {
+        if(stralloc_equal(&(elem->sa), &sa)) {
             return 1;
         }
         elem = elem->next;
@@ -60,9 +64,43 @@ int hash_contains_string(hash h, stralloc sa) {
     return 0;
 }
 
-int get_hash(stralloc sa) {
-    int h = 5381;
-    for(int i = 0; i < sa.len; i++) {
+void hash_compare(hash dict, hash text, int show_missing) {
+    for(int i = 0; i < HASHLEN; i++) {
+        hash_elem* elem = text[i];
+        if(elem == NULL) {
+            continue;
+        }
+        while(elem->next != NULL) {
+            if(show_missing) {
+                if (!hash_contains_string(dict, elem->sa)) {
+                    stralloc_0(&(elem->sa));
+                    printf("%s\n", elem->sa.s);
+                }
+            } else {
+                if (hash_contains_string(dict, elem->sa)) {
+                    stralloc_0(&(elem->sa));
+                    printf("%s\n", elem->sa.s);
+                }
+            }
+            elem = elem->next;
+        }
+        if(show_missing) {
+            if (!hash_contains_string(dict, elem->sa)) {
+                stralloc_0(&(elem->sa));
+                printf("%s\n", elem->sa.s);
+            }
+        } else {
+            if (hash_contains_string(dict, elem->sa)) {
+                stralloc_0(&(elem->sa));
+                printf("%s\n", elem->sa.s);
+            }
+        }
+    }
+}
+
+unsigned int get_hash(stralloc sa) {
+    unsigned int h = 5381;
+    for(unsigned int i = 0; i < sa.len; i++) {
         h = ((h << 5) + h) ^ sa.s[i];
     }
     return h % 256;

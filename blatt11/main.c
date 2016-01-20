@@ -9,7 +9,7 @@ void print_usage(char* program_name) {
         "[-v (invert result)] <dictionary>\n", program_name);
 }
 
-int read_words(hash h, char* words_file) {
+int read_words(hash h, char* words_file, int ignore_case) {
     FILE* file;
     if(words_file == NULL) {
         file = stdin;
@@ -21,8 +21,10 @@ int read_words(hash h, char* words_file) {
         }
     }
     stralloc sa = {0};
-    while(scan_word(file, &sa) == 0) {
-        printf("New word: %s.\n", sa.s);
+    while(scan_word(file, &sa, ignore_case) == 0) {
+#ifdef DEBUG
+        printf("New word: %s\n", sa.s);
+#endif
         hash_add_string(h, sa);
     }
     if(words_file != NULL) {
@@ -64,17 +66,16 @@ int main(int argc, char** argv) {
     dict_file = argv[optind];
 
     hash dict_hash = hash_init();
-    int ret = read_words(dict_hash, dict_file);
-    if(!ret) {
+    int ret = read_words(dict_hash, dict_file, ignore_case);
+    if(ret) {
         return 1;
     }
     hash input_hash = hash_init();
-    ret = read_words(input_hash, NULL);
-    if(!ret) {
+    ret = read_words(input_hash, NULL, ignore_case);
+    if(ret) {
         return 1;
     }
 
-    // TODO: iterate hash and check input against dictionary
-
+    hash_compare(dict_hash, input_hash, invert);
     return 0;
 }
