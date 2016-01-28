@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
     struct stat statbuf;
     if (fstat(infd, &statbuf) < 0) die(infile);
 
-    off_t nbytes = statbuf.st_size;
+    size_t nbytes = (size_t) statbuf.st_size;
     char* buf = (char*) mmap(0, nbytes, PROT_READ, MAP_SHARED, infd, 0);
     if (buf == MAP_FAILED) die(infile);
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
     stralloc out = {0};
     int print = 0;
 
-    for(ssize_t checked = 0; checked < nbytes; checked++ ){
+    for(size_t checked = 0; checked < nbytes; checked++ ){
         c = buf[checked];
         bufout = &buf[checked];
         if(c == '\n' && !print) out.len = 0;
@@ -109,5 +109,6 @@ int main(int argc, char* argv[]){
         }
     }
     if (print) write(1, out.s, out.len);
-
+    close(infd);
+    munmap(buf, nbytes);
 }
