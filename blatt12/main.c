@@ -64,7 +64,12 @@ int main(int argc, char* argv[]){
 
         switch (state) {
             case S0:
-                if (c == 47) state = S1;
+                if (c == 47) {
+                    state = S1;
+                    out.len = 0;
+                    if(stralloc_append(&out, bufout));
+                    else exit(2);
+                }
                 break;
             case S1:
                 if (c == 47) {
@@ -86,12 +91,15 @@ int main(int argc, char* argv[]){
                 if (c == '\n') {
                     state = S0;
                     print = 0;
-                    write(1, out.s, out.len);
+
                 }
                 break;
             case S4:
                 if (c == 47) {
-                    state = S3;
+                    state = S0;
+                    print = 0;
+                    write(1, out.s, out.len);
+                    write(1, "\n", 1);
                 } else if(c == 42){
                     state = S4;
                 } else {
@@ -100,5 +108,6 @@ int main(int argc, char* argv[]){
                 break;
         }
     }
+    if (print) write(1, out.s, out.len);
 
 }

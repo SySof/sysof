@@ -1,0 +1,10 @@
+/* regular comments
+    can extend over
+    multiple lines */
+int i; // this comment is ended by the line terminator
+/*
+    // within a comment "//" has no special meaning */ int j;
+/*/ this is still a comment */
+/**** this a comment with quite a number of asterisks ****/
+/* comments cannot be /* nested */ int k;
+/* multiple */ int l; /* comments on a */ int m; // line
