@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
                 if (c == '\n') {
                     state = S0;
                     print = 0;
-
+                    write(1, out.s, out.len);
                 }
                 break;
             case S4:
