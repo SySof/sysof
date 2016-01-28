@@ -109,6 +109,7 @@ int main(int argc, char* argv[]){
         }
     }
     if (print) write(1, out.s, out.len);
+    write(1, "\n", 1);
     close(infd);
     munmap(buf, nbytes);
 }
