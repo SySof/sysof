@@ -16,6 +16,7 @@ void print_city_list(struct city **list, unsigned int n) {
     printf("City list:\n");
     for(i = 0; i < n; i++) {
         printf("City %d: %s\n", i, list[i]->name);
+        
     }
 }
 
